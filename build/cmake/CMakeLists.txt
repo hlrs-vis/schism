@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 3.0.2)
 
 # tell cmake where to look for our scripts
 set(CMAKE_MODULE_PATH ${schism_SOURCE_DIR}/custom_scripts ${CMAKE_MODULE_PATH})
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 include(schism_platform)
 include(schism)

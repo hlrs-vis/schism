@@ -79,7 +79,8 @@ scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc
 
 scm_project_include_directories(UNIX  /usr/include/freetype2
 									  /opt/OpenCL/include
-									  #/opt/cuda/current/cuda/include
+									  /usr/local/cuda/include
+									  /opt/cuda/current/cuda/include)
 )
 
 # set library directories
