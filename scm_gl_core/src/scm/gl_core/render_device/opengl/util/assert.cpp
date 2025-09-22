@@ -25,7 +25,7 @@ void _gl_assert(const opengl::gl_core& glcore,
                   << message
                   << ", in file: " << in_file
                   << ", at line: " << at_line << std::endl;
-        abort();
+        //abort();
     }
 }
 

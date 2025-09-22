@@ -41,13 +41,20 @@ scm_project_include_directories(ALL   ${SCM_ROOT_DIR}/scm_core/src
                                       ${SCM_ROOT_DIR}/scm_gl_core/src
                                       ${SCM_ROOT_DIR}/scm_input/src
                                       ${SCM_BOOST_INC_DIR})
-scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc)
 #scm_project_include_directories(UNIX  )
+
+scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc
+                                      ${GLOBAL_EXT_DIR}/FreeImage/include
+                                      ${GLOBAL_EXT_DIR}/freetype/include
+									  #${GLOBAL_EXT_DIR}/inc/cuda
+)
 
 # set library directories
 scm_project_link_directories(ALL   ${SCM_LIB_DIR}/${SCHISM_PLATFORM}
                                    ${SCM_BOOST_LIB_DIR})
-scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/lib)
+scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/FreeImage/lib
+                                   ${GLOBAL_EXT_DIR}/freetype/lib
+)
 #scm_project_link_directories(UNIX  )
 
 if (WIN32)
@@ -80,3 +87,4 @@ scm_link_libraries(WIN32
 add_dependencies(${PROJECT_NAME}
     scm_core
 )
+

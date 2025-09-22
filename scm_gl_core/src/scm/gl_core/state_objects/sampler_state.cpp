@@ -72,6 +72,8 @@ sampler_state::sampler_state(render_device&            in_device,
         glapi.glSamplerParameterf(sampler_id(), GL_TEXTURE_LOD_BIAS, descriptor()._lod_bias);
         glapi.glSamplerParameteri(sampler_id(), GL_TEXTURE_COMPARE_FUNC, util::gl_compare_func(descriptor()._compare_func));
         glapi.glSamplerParameteri(sampler_id(), GL_TEXTURE_COMPARE_MODE, util::gl_texture_compare_mode(descriptor()._compare_mode));
+
+
     }
 
     gl_assert(glapi, leaving sampler_state::sampler_state());

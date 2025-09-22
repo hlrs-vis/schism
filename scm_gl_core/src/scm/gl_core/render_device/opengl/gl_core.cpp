@@ -147,12 +147,11 @@ gl_core::gl_core()
     extension_NV_fill_rectangle                 = false;
 }
 
-bool
-gl_core::initialize()
-{
+bool gl_core::initialize() {
     if (is_initialized()) {
-        return (true);
+        return true;
     }
+
     log::logger_format_saver save_indent(glout().associated_logger());
     glout() << log::info << "gl_core::initialize(): starting to initialize gl core:" << log::end;
     glout() << log::indent;
@@ -161,74 +160,103 @@ gl_core::initialize()
 
     if (!version_1_1_available) {
         glerr() << log::fatal << "gl_core::initialize(): unable to initialize gl core, missing vital entry points" << log::end;
-        return (false);
+        return false;
     }
 
-    { // parse the version string
-        std::string gl_version_string(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    // Parse the version string
+    const char* version_cstr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+    if (!version_cstr) {
+        glerr() << log::fatal << "gl_core::initialize(): glGetString(GL_VERSION) returned NULL, OpenGL context may not be initialized properly." << log::end;
+        return false;
+    }
+    std::string gl_version_string(version_cstr);
 
-        namespace qi = boost::spirit::qi;
-        namespace ph = boost::phoenix;
+    namespace qi = boost::spirit::qi;
+    namespace ph = boost::phoenix;
 
-        std::string::iterator b = gl_version_string.begin();
-        std::string::iterator e = gl_version_string.end();
+    std::string::iterator b = gl_version_string.begin();
+    std::string::iterator e = gl_version_string.end();
 
-        qi::rule<std::string::iterator> gl_version_string_format =
-                 qi::int_[ph::ref(_context_info._version_major) = qi::_1]
-            >>   qi::char_('.')
-            >>   qi::int_[ph::ref(_context_info._version_minor) = qi::_1]
-            >> -(qi::char_('.') >> qi::int_[ph::ref(_context_info._version_release) = qi::_1])
-            >> (*qi::char_)[ph::assign(ph::ref(_context_info._version_info), ph::begin(qi::_1), ph::end(qi::_1))];
+    qi::rule<std::string::iterator> gl_version_string_format =
+        qi::int_[ph::ref(_context_info._version_major) = qi::_1]
+        >> qi::char_('.')
+        >> qi::int_[ph::ref(_context_info._version_minor) = qi::_1]
+        >> -(qi::char_('.') >> qi::int_[ph::ref(_context_info._version_release) = qi::_1])
+        >> (*qi::char_)[ph::assign(ph::ref(_context_info._version_info), ph::begin(qi::_1), ph::end(qi::_1))];
 
-        if (   !qi::phrase_parse(b, e, gl_version_string_format, boost::spirit::ascii::space)
-            || b != e) {
-            glerr() << log::error
-                    << "gl_core::initialize(): "
-                    << "unable to parse OpenGL Version string, malformed version string ('"
-                    << gl_version_string << "')" << log::end;
-            return (false);
-        }
+    if (!qi::phrase_parse(b, e, gl_version_string_format, boost::spirit::ascii::space) || b != e) {
+        glerr() << log::error
+            << "gl_core::initialize(): unable to parse OpenGL Version string, malformed version string ('"
+            << gl_version_string << "')" << log::end;
+        return false;
     }
 
-    _context_info._vendor.assign(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-    _context_info._renderer.assign(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-    _context_info._glsl_version_info.assign(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    // Get the vendor, renderer, and GLSL version info
+    const char* vendor_cstr = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+    if (vendor_cstr) {
+        _context_info._vendor.assign(vendor_cstr);
+    }
+    else {
+        glerr() << log::warning << "gl_core::initialize(): glGetString(GL_VENDOR) returned NULL." << log::end;
+    }
 
+    const char* renderer_cstr = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
+    if (renderer_cstr) {
+        _context_info._renderer.assign(renderer_cstr);
+    }
+    else {
+        glerr() << log::warning << "gl_core::initialize(): glGetString(GL_RENDERER) returned NULL." << log::end;
+    }
+
+    const char* glsl_version_cstr = reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION));
+    if (glsl_version_cstr) {
+        _context_info._glsl_version_info.assign(glsl_version_cstr);
+    }
+    else {
+        glerr() << log::warning << "gl_core::initialize(): glGetString(GL_SHADING_LANGUAGE_VERSION) returned NULL." << log::end;
+    }
+
+    // Handle different OpenGL versions
     if (_context_info._version_major == 3) {
-        if (    _context_info._version_minor == 0 && !version_3_0_available) {
+        if (_context_info._version_minor == 0 && !version_3_0_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 3.0 reported but missing entry points detected" << log::end;
         }
-        if (    _context_info._version_minor == 1 && !version_3_1_available) {
+        if (_context_info._version_minor == 1 && !version_3_1_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 3.1 reported but missing entry points detected" << log::end;
         }
-        if (    _context_info._version_minor == 2 && !version_3_2_available) {
+        if (_context_info._version_minor == 2 && !version_3_2_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 3.2 reported but missing entry points detected" << log::end;
         }
-        if (    _context_info._version_minor == 3 && !version_3_3_available) {
+        if (_context_info._version_minor == 3 && !version_3_3_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 3.3 reported but missing entry points detected" << log::end;
         }
     }
     else if (_context_info._version_major == 4) {
-        if (    _context_info._version_minor == 0 && !version_4_0_available) {
+        if (_context_info._version_minor == 0 && !version_4_0_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 4.0 reported but missing entry points detected" << log::end;
         }
-        if (    _context_info._version_minor == 1 && !version_4_1_available) {
+        if (_context_info._version_minor == 1 && !version_4_1_available) {
             glout() << log::warning << "gl_core::initialize(): OpenGL version 4.1 reported but missing entry points detected" << log::end;
         }
     }
     else if (_context_info._version_major < 3) {
-        glerr() << log::fatal << "gl_core::initialize(): at least OpenGL version 3.0 requiered" << log::end;
-        return (false);
+        glerr() << log::fatal << "gl_core::initialize(): at least OpenGL version 3.0 required" << log::end;
+        return false;
     }
 
-    // get the extension strings
+    // Get the extension strings
     if (_context_info._version_major >= 3) {
         GLint num_extensions = 0;
-
         glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+
         for (int i = 0; i < num_extensions; ++i) {
-            const std::string extension_string(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
-            _extensions.insert(extension_string);
+            const char* extension_cstr = reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i));
+            if (extension_cstr) {
+                _extensions.insert(extension_cstr);
+            }
+            else {
+                glerr() << log::warning << "gl_core::initialize(): glGetStringi(GL_EXTENSIONS, " << i << ") returned NULL." << log::end;
+            }
         }
 
         int profile_mask;
@@ -245,21 +273,8 @@ gl_core::initialize()
             _context_info._profile_string.assign("unknown profile");
         }
     }
-    //glout() << log::info
-    //        << "OpenGL context information:" << log::nline
-    //        << *this << log::end;
 
-    //else {
-    //    std::string gl_ext_string(reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS)));
-
-    //    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-    //    boost::char_separator<char> space_separator(" ");
-    //    tokenizer                   extension_strings(gl_ext_string, space_separator);
-
-    //    for (tokenizer::const_iterator i = extension_strings.begin(); i != extension_strings.end(); ++i) {
-    //        _extensions.insert(*i);
-    //    }
-    //}
+    // Check for supported extensions and log warnings if needed
     if (is_supported("GL_ARB_cl_event") && !extension_ARB_cl_event) {
         glout() << log::warning << "gl_core::initialize(): GL_ARB_cl_event reported but missing entry points detected" << log::end;
     }
@@ -267,7 +282,7 @@ gl_core::initialize()
         glout() << log::warning << "gl_core::initialize(): GL_ARB_debug_output reported but missing entry points detected" << log::end;
     }
     if (is_supported("GL_ARB_robustness") && !extension_ARB_robustness) {
-        glout() << log::warning << "gl_core::initialize(): ARB_robustness reported but missing entry points detected" << log::end;
+        glout() << log::warning << "gl_core::initialize(): GL_ARB_robustness reported but missing entry points detected" << log::end;
     }
 
     extension_ARB_shading_language_include  = extension_ARB_shading_language_include  && is_supported("GL_ARB_shading_language_include");

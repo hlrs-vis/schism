@@ -52,7 +52,7 @@ context::~context()
     //if (lock_cur_surface) {
     //    _impl->make_current(lock_cur_surface, false);
     //}
-    _impl.reset();
+    //_impl.reset();
 }
 
 bool

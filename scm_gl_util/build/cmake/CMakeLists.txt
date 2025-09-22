@@ -65,26 +65,33 @@ endif (WIN32)
 
 # set include and lib directories
 scm_project_include_directories(ALL   ${SCM_ROOT_DIR}/scm_core/src
-                                      ${SCM_ROOT_DIR}/scm_cl_core/src
+                                      #${SCM_ROOT_DIR}/scm_cl_core/src
                                       ${SCM_ROOT_DIR}/scm_gl_core/src
                                       ${SCM_ROOT_DIR}/scm_gl_util/src
                                       ${SCM_ROOT_DIR}/scm_input/src
                                       ${SCM_BOOST_INC_DIR})
 
 scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc
-                                      ${GLOBAL_EXT_DIR}/inc/freeimage
-                                      ${GLOBAL_EXT_DIR}/inc/freetype
-									  ${GLOBAL_EXT_DIR}/inc/cuda)
+                                      ${GLOBAL_EXT_DIR}/FreeImage/include
+                                      ${GLOBAL_EXT_DIR}/freetype/include
+									  #${GLOBAL_EXT_DIR}/inc/cuda
+)
 
 scm_project_include_directories(UNIX  /usr/include/freetype2
 									  /opt/OpenCL/include
-									  /opt/cuda/current/cuda/include)
+									  #/opt/cuda/current/cuda/include
+)
 
 # set library directories
 scm_project_link_directories(ALL   ${SCM_LIB_DIR}/${SCHISM_PLATFORM}
                                    ${SCM_BOOST_LIB_DIR})
-scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/lib)
-scm_project_link_directories(UNIX  /opt/cuda/current/cuda/lib64)
+scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/FreeImage/lib
+                                   ${GLOBAL_EXT_DIR}/freetype/lib
+)
+
+#scm_project_link_directories(UNIX  
+#/opt/cuda/current/cuda/lib64
+#)
 
 if (WIN32)
     # add preprocessor defines
@@ -99,7 +106,7 @@ else (SCHISM_BUILD_STATIC)
 	add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 endif (SCHISM_BUILD_STATIC)
 
-set_target_properties( ${PROJECT_NAME} 
+set_target_properties(${PROJECT_NAME} 
                 PROPERTIES
                 DEBUG_OUTPUT_NAME ${PROJECT_NAME}${SCHISM_DEBUG_LIBRARY_EXTENSION}
                 RELEASE_OUTPUT_NAME ${PROJECT_NAME}
@@ -113,12 +120,12 @@ scm_link_libraries(ALL
 )
 
 scm_link_libraries(WIN32
-    FreeImagePlus
-    freetype2
+    optimized FreeImagePlus debug FreeImagePlusd
+    freetype
 )
 
 scm_link_libraries(UNIX
-    freeimageplus
+    optimized FreeImagePlus debug FreeImagePlusd
     freetype
 )
 
@@ -130,12 +137,13 @@ add_dependencies(${PROJECT_NAME}
 
 IF (${SCM_ENABLE_CUDA_CL_SUPPORT})
 	add_dependencies(${PROJECT_NAME}
-		scm_cl_core
+		#scm_cl_core
 	)
   scm_link_libraries(WIN32
-    scm_cl_core
-	  general cuda
-	  general cudart
-    general OpenCL
+    #scm_cl_core
+	  #general cuda
+	  #xgeneral cudart
+    #general OpenCL
   )
 ENDIF (${SCM_ENABLE_CUDA_CL_SUPPORT})
+

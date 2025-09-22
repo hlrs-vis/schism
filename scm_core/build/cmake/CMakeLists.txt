@@ -76,11 +76,21 @@ endif (WIN32)
 # set include and lib directories
 scm_project_include_directories(ALL   ${SCM_ROOT_DIR}/scm_core/src
                                       ${SCM_BOOST_INC_DIR})
-scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc)
+
+scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/boost
+                                      ${GLOBAL_EXT_DIR}/FreeImage/include
+                                      ${GLOBAL_EXT_DIR}/freetype/include
+									  #${GLOBAL_EXT_DIR}/inc/cuda
+)
 
 scm_project_link_directories(ALL   ${SCM_LIB_DIR}/${SCHISM_PLATFORM}
-                                   ${SCM_BOOST_LIB_DIR})
-scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/lib)
+                                   ${SCM_BOOST_LIB_DIR}
+)
+
+scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/FreeImage/lib
+                                   ${GLOBAL_EXT_DIR}/freetype/lib
+)
+
 #scm_project_link_directories(UNIX )
 
 if (WIN32)
@@ -96,21 +106,23 @@ else (SCHISM_BUILD_STATIC)
 	add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 endif (SCHISM_BUILD_STATIC)
 
-set_target_properties( ${PROJECT_NAME} 
+set_target_properties(${PROJECT_NAME} 
                 PROPERTIES
                 DEBUG_OUTPUT_NAME ${PROJECT_NAME}${SCHISM_DEBUG_LIBRARY_EXTENSION}
                 RELEASE_OUTPUT_NAME ${PROJECT_NAME}
 )
 
+
 # link libraries
 scm_link_libraries(WIN32
-    optimized libboost_chrono-${SCM_BOOST_MT_REL}           debug libboost_chrono-${SCM_BOOST_MT_DBG}
-    optimized libboost_date_time-${SCM_BOOST_MT_REL}        debug libboost_date_time-${SCM_BOOST_MT_DBG}
-    optimized libboost_filesystem-${SCM_BOOST_MT_REL}       debug libboost_filesystem-${SCM_BOOST_MT_DBG}
-    optimized libboost_program_options-${SCM_BOOST_MT_REL}  debug libboost_program_options-${SCM_BOOST_MT_DBG}
-    optimized libboost_system-${SCM_BOOST_MT_REL}           debug libboost_system-${SCM_BOOST_MT_DBG}
-    optimized libboost_timer-${SCM_BOOST_MT_REL}            debug libboost_timer-${SCM_BOOST_MT_DBG}
+    optimized ${SCM_BOOST_LIB_DIR}libboost_chrono-vc142-mt-x64-1_70.lib             debug ${SCM_BOOST_LIB_DIR}libboost_chrono-vc142-mt-gd-x64-1_70.lib
+    optimized ${SCM_BOOST_LIB_DIR}libboost_date_time-vc142-mt-x64-1_70.lib          debug ${SCM_BOOST_LIB_DIR}libboost_date_time-vc142-mt-gd-x64-1_70.lib
+    optimized ${SCM_BOOST_LIB_DIR}libboost_filesystem-vc142-mt-x64-1_70.lib         debug ${SCM_BOOST_LIB_DIR}libboost_filesystem-vc142-mt-gd-x64-1_70.lib
+    optimized ${SCM_BOOST_LIB_DIR}libboost_program_options-vc142-mt-x64-1_70.lib    debug ${SCM_BOOST_LIB_DIR}libboost_program_options-vc142-mt-gd-x64-1_70.lib
+    optimized ${SCM_BOOST_LIB_DIR}libboost_system-vc142-mt-x64-1_70.lib             debug ${SCM_BOOST_LIB_DIR}libboost_system-vc142-mt-gd-x64-1_70.lib
+    optimized ${SCM_BOOST_LIB_DIR}libboost_timer-vc142-mt-x64-1_70.lib              debug ${SCM_BOOST_LIB_DIR}libboost_timer-vc142-mt-gd-x64-1_70.lib
 )
+
 scm_link_libraries(UNIX
     rt
     boost_chrono${SCM_BOOST_MT_REL}
@@ -120,3 +132,4 @@ scm_link_libraries(UNIX
     boost_system${SCM_BOOST_MT_REL}
     boost_timer${SCM_BOOST_MT_REL}
 )
+

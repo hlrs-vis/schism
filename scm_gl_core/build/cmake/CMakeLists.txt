@@ -110,6 +110,7 @@ scm_project_files(HEADER_FILES      ${SRC_DIR}/gl_classic/utilities *.h *.inl)
 
 scm_project_files(SOURCE_FILES      ${SRC_DIR}/gl_classic/vertexbuffer_object *.cpp)
 scm_project_files(HEADER_FILES      ${SRC_DIR}/gl_classic/vertexbuffer_object *.h *.inl)
+
 ## gl_classic #####################################################################################
 endif (SCHISM_OPT_BUILD_deprecated_classic_scm_gl)
 
@@ -124,8 +125,14 @@ endif (WIN32)
 # set include and lib directories
 scm_project_include_directories(ALL   ${SCM_ROOT_DIR}/scm_core/src
                                       ${SCM_ROOT_DIR}/scm_gl_core/src
-                                      ${SCM_BOOST_INC_DIR})
-scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc)
+                                      ${SCM_BOOST_INC_DIR}
+)
+
+scm_project_include_directories(WIN32 ${GLOBAL_EXT_DIR}/inc
+                                      ${GLOBAL_EXT_DIR}/FreeImage/include
+                                      ${GLOBAL_EXT_DIR}/freetype/include
+									  #${GLOBAL_EXT_DIR}/inc/cuda
+)
 
 IF (${SCM_ENABLE_CUDA_CL_SUPPORT})
   scm_project_include_directories(ALL ${SCM_ROOT_DIR}/scm_cl_core/src )
@@ -134,14 +141,16 @@ ENDIF (${SCM_ENABLE_CUDA_CL_SUPPORT})
 # set library directories
 scm_project_link_directories(ALL   ${SCM_LIB_DIR}/${SCHISM_PLATFORM}
                                    ${SCM_BOOST_LIB_DIR})
-scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/lib)
+scm_project_link_directories(WIN32 ${GLOBAL_EXT_DIR}/FreeImage/lib
+                                   ${GLOBAL_EXT_DIR}/freetype/lib
+)
 
 IF (${SCM_ENABLE_CUDA_CL_SUPPORT})
   scm_project_link_directories(UNIX     /opt/cuda/current/cuda/lib64
                                         /usr/lib/nvidia-current)
 ENDIF (${SCM_ENABLE_CUDA_CL_SUPPORT})  
 
-#scm_project_link_directories(UNIX  )
+#scm_project_link_directories(UNIX)
 
 if (WIN32)
     # add preprocessor defines
@@ -198,5 +207,3 @@ IF (${SCM_ENABLE_CUDA_CL_SUPPORT})
 		scm_cl_core
 	)
 ENDIF (${SCM_ENABLE_CUDA_CL_SUPPORT})  
-
-
