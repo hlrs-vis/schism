@@ -81,7 +81,6 @@ scm_project_include_directories(UNIX  /usr/include/freetype2
 									  /opt/OpenCL/include
 									  /usr/local/cuda/include
 									  /opt/cuda/current/cuda/include)
-)
 
 # set library directories
 scm_project_link_directories(ALL   ${SCM_LIB_DIR}/${SCHISM_PLATFORM}
